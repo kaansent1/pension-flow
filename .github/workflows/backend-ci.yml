@@ -26,6 +26,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Check Docker
+        run: docker version
+
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 

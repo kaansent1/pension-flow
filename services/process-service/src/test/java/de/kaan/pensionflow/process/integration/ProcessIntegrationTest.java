@@ -66,7 +66,7 @@ class ProcessIntegrationTest {
     static void configureMongoDB(DynamicPropertyRegistry registry) {
         registry.add(
                 "spring.data.mongodb.uri",
-                mongoDB::getReplicaSetUrl
+                mongoDB::getConnectionString
         );
     }
 

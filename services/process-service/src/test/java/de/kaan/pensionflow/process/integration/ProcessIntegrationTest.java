@@ -45,8 +45,12 @@ class ProcessIntegrationTest {
         System.out.println("Mongo URI: " + mongoDB.getReplicaSetUrl());
 
         registry.add(
-                "spring.data.mongodb.uri",
-                mongoDB::getReplicaSetUrl
+                "spring.mongodb.uri",
+                () -> {
+                    String uri = mongoDB.getReplicaSetUrl();
+                    System.out.println("Spring Mongo URI: " + uri);
+                    return uri;
+                }
         );
     }
 

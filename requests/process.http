@@ -42,7 +42,7 @@ Content-Type: application/json
 }
 
 ### Delete process
-DELETE http://localhost:8080/api/processes/6a7bc10c8c8bfe5320a69b17
+DELETE http://localhost:8080/api/processes/6a7c67d3c8b492e6afc6fb83
 
 ### Edit process
 PUT http://localhost:8080/api/processes/6a7bbfc22f36e95e15b7f57c

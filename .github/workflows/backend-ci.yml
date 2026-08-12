@@ -27,10 +27,12 @@ jobs:
           distribution: 'temurin'
 
       - name: Check Docker
-        run: docker version
+        run: docker info
 
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
       - name: Run tests
-        run: ./gradlew test
+        run: ./gradlew test --info
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: 'true'

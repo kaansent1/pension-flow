@@ -69,7 +69,7 @@ function ProcessCard({
             >
                 <button
                     type="button"
-                    className={`status ${process.status.toLowerCase()} ${
+                    className={`status ${process.status.toLowerCase() ?? 'unknown'} ${
                         !isCompleted ? 'clickable' : ''
                     }`}
                     onClick={() => {

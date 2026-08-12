@@ -1,10 +1,10 @@
-package de.kaan.pensionflow.processservice;
+package de.kaan.pensionflow.process;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ProcessServiceApplicationTests {
+class AdministrativeProcessServiceApplicationTests {
 
     @Test
     void contextLoads() {

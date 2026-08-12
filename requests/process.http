@@ -1,0 +1,42 @@
+### Create process
+POST http://localhost:8080/api/processes
+Content-Type: application/json
+
+{
+  "title": "Adressänderung",
+  "description": "Neue Adresse eines Mitglieds bearbeiten",
+  "priority": "MEDIUM"
+}
+
+### Get all processes
+GET http://localhost:8080/api/processes
+
+### Get process by ID
+GET http://localhost:8080/api/processes/6a7ba2b1ca059caa764199b7
+
+### Get non-existing process
+GET http://localhost:8080/api/processes/does-not-exist
+
+### Start processing
+PATCH http://localhost:8080/api/processes/6a7ba2b1ca059caa764199b7/status
+Content-Type: application/json
+
+{
+  "status": "IN_PROGRESS"
+}
+
+### Complete process
+PATCH http://localhost:8080/api/processes/6a7ba2b1ca059caa764199b7/status
+Content-Type: application/json
+
+{
+  "status": "COMPLETED"
+}
+
+### Try to reopen completed process
+PATCH http://localhost:8080/api/processes/6a7ba2b1ca059caa764199b7/status
+Content-Type: application/json
+
+{
+  "status": "OPEN"
+}

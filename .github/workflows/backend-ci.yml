@@ -27,7 +27,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Check Docker
-        run: docker info
+        run: docker version
 
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew

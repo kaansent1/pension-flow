@@ -35,6 +35,22 @@ class ProcessIntegrationTest {
                 .build();
     }
 
+    @Container
+    static MongoDBContainer mongoDB =
+            new MongoDBContainer("mongo:8");
+
+    @DynamicPropertySource
+    static void configureMongoDB(DynamicPropertyRegistry registry) {
+        System.out.println("Mongo Container running: " + mongoDB.isRunning());
+        System.out.println("Mongo URI: " + mongoDB.getReplicaSetUrl());
+
+        registry.add(
+                "spring.data.mongodb.uri",
+                mongoDB::getReplicaSetUrl
+        );
+    }
+
+
     @Test
     void shouldCreateProcessThroughApi() {
         String requestBody = """
@@ -56,18 +72,6 @@ class ProcessIntegrationTest {
                 .contains("\"title\":\"Adressänderung\"")
                 .contains("\"status\":\"OPEN\"")
                 .contains("\"priority\":\"MEDIUM\"");
-    }
-
-    @Container
-    static MongoDBContainer mongoDB =
-            new MongoDBContainer("mongo:8");
-
-    @DynamicPropertySource
-    static void configureMongoDB(DynamicPropertyRegistry registry) {
-        registry.add(
-                "spring.data.mongodb.uri",
-                mongoDB::getConnectionString
-        );
     }
 
     @Autowired

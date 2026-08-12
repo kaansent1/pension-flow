@@ -2,6 +2,7 @@ export type ProcessStatus =
     | 'OPEN'
     | 'IN_PROGRESS'
     | 'COMPLETED'
+    | 'CANCELLED'
 
 export type ProcessPriority =
     | 'LOW'

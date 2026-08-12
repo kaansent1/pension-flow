@@ -34,9 +34,23 @@ Content-Type: application/json
 }
 
 ### Try to reopen completed process
-PATCH http://localhost:8080/api/processes/6a7ba2b1ca059caa764199b7/status
+PATCH http://localhost:8080/api/processes/6a7bbfc22f36e95e15b7f57c/status
 Content-Type: application/json
 
 {
-  "status": "OPEN"
+  "status": "IN_PROGRESS"
+}
+
+### Delete process
+DELETE http://localhost:8080/api/processes/6a7bc10c8c8bfe5320a69b17
+
+### Edit process
+PUT http://localhost:8080/api/processes/6a7bbfc22f36e95e15b7f57c
+Content-Type: application/json
+
+{
+  "title": "In Bearbeitung",
+  "description": "Neue Prozess wird bearbeitet",
+  "assignedEmployeeId": "123",
+  "priority": "HIGH"
 }

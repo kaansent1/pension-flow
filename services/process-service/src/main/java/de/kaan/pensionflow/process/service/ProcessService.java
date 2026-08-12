@@ -2,6 +2,7 @@ package de.kaan.pensionflow.process.service;
 
 import de.kaan.pensionflow.process.dto.CreateProcessRequest;
 import de.kaan.pensionflow.process.dto.ProcessResponse;
+import de.kaan.pensionflow.process.dto.UpdateProcessRequest;
 import de.kaan.pensionflow.process.dto.UpdateProcessStatusRequest;
 import de.kaan.pensionflow.process.model.AdministrativeProcess;
 import de.kaan.pensionflow.process.model.ProcessStatus;
@@ -38,7 +39,7 @@ public class ProcessService {
     }
 
     public List<ProcessResponse> getAllProcesses() {
-        return processRepository.findAll()
+        return processRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -49,6 +50,13 @@ public class ProcessService {
                 .orElseThrow(() -> new ProcessNotFoundException(id));
 
         return toResponse(process);
+    }
+
+    public void deleteProcess(String id) {
+        AdministrativeProcess process = processRepository.findById(id)
+                .orElseThrow(() -> new ProcessNotFoundException(id));
+
+        processRepository.delete(process);
     }
 
     public ProcessResponse updateStatus(
@@ -85,6 +93,25 @@ public class ProcessService {
                     "A cancelled process cannot be opened"
             );
         }
+    }
+
+    public ProcessResponse updateProcess(
+            String id,
+            UpdateProcessRequest request
+    ) {
+        AdministrativeProcess process = processRepository.findById(id)
+                .orElseThrow(() -> new ProcessNotFoundException(id));
+
+        process.setTitle(request.title());
+        process.setDescription(request.description());
+        process.setPriority(request.priority());
+        process.setAssignedEmployeeId(request.assignedEmployeeId());
+        process.setUpdatedAt(Instant.now());
+
+        AdministrativeProcess updatedProcess = processRepository.save(process);
+
+        return toResponse(updatedProcess);
+
     }
 
     private ProcessResponse toResponse(AdministrativeProcess process) {

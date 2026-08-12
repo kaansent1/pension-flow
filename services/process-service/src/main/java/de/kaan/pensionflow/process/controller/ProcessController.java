@@ -2,6 +2,7 @@ package de.kaan.pensionflow.process.controller;
 
 import de.kaan.pensionflow.process.dto.CreateProcessRequest;
 import de.kaan.pensionflow.process.dto.ProcessResponse;
+import de.kaan.pensionflow.process.dto.UpdateProcessRequest;
 import de.kaan.pensionflow.process.dto.UpdateProcessStatusRequest;
 import de.kaan.pensionflow.process.service.ProcessService;
 import jakarta.validation.Valid;
@@ -43,4 +44,20 @@ public class ProcessController {
     ) {
         return processService.updateStatus(id, request);
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProcess(@PathVariable String id) {
+        processService.deleteProcess(id);
+    }
+
+    @PutMapping("/{id}")
+    public ProcessResponse updateProcess(
+            @PathVariable String id,
+            @Valid @RequestBody UpdateProcessRequest request
+    ) {
+        return processService.updateProcess(id, request);
+
+    }
+
 }

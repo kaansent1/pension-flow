@@ -26,13 +26,11 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Check Docker
-        run: docker version
-
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
       - name: Run tests
-        run: ./gradlew test --info
-        env:
-          TESTCONTAINERS_RYUK_DISABLED: 'true'
+        run: ./gradlew test
+
+      - name: Build Docker image
+        run: docker build -t pension-flow-process-service:ci .

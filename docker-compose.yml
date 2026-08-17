@@ -1,0 +1,23 @@
+services:
+
+  mongodb:
+    image: mongo:8
+    container_name: pension-flow-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  process-service:
+    build:
+      context: ./services/process-service
+    container_name: pension-flow-process-service
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_MONGODB_URI: mongodb://mongodb:27017/pension_flow
+    depends_on:
+      - mongodb
+
+volumes:
+  mongodb_data:

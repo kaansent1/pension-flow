@@ -1,6 +1,6 @@
 import type {Process, ProcessPriority, ProcessStatus} from '../types/process.ts'
 
-const API_URL = 'http://localhost:8080/api/processes'
+const API_URL = `https://pension-flow-service.onrender.com/api/processes`
 
 export interface CreateProcessRequest {
     title: string

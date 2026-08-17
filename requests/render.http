@@ -1,0 +1,34 @@
+### Create Process - Render
+POST https://pension-flow-service.onrender.com/api/processes
+Content-Type: application/json
+
+{
+  "title": "Test Process",
+  "description": "Test über Render",
+  "priority": "HIGH"
+}
+
+###
+GET https://pension-flow-service.onrender.com/api/processes/
+
+###
+PUT https://pension-flow-service.onrender.com/api/processes/6a82e8cef184e7951c10e58f
+Content-Type: application/json
+
+{
+  "title": "Adressänderung aktualisiert",
+  "description": "Die Adresse des Mitglieds wurde geändert.",
+  "priority": "HIGH",
+  "assignedEmployeeId": "EMP-001"
+}
+
+###
+PATCH https://pension-flow-service.onrender.com/api/processes/6a82e8cef184e7951c10e58f/status
+Content-Type: application/json
+
+{
+  "status": "IN_PROGRESS"
+}
+
+###
+DELETE https://pension-flow-service.onrender.com/api/processes/6a82e8cef184e7951c10e58f

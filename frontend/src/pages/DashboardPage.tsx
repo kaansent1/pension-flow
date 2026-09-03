@@ -25,6 +25,7 @@ function DashboardPage({
     const [selectedProcess, setSelectedProcess] = useState<Process | null>(null)
     const [editingProcess, setEditingProcess] = useState<Process | null>(null)
 
+
     const openCount = processes.filter(
         process => process.status === 'OPEN'
     ).length
@@ -95,13 +96,6 @@ function DashboardPage({
                 </div>
 
                 <div className="process-list">
-                    {loading && (
-                        <p>Prozesse werden geladen...</p>
-                    )}
-
-                    {error && (
-                        <p>{error}</p>
-                    )}
 
                     <ProcessList
                         processes={processes}

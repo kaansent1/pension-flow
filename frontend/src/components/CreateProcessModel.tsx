@@ -56,6 +56,7 @@ function CreateProcessModal({
                         type="button"
                         className="modal-close"
                         onClick={onClose}
+                        aria-label="Dialog schließen"
                     >
                         ×
                     </button>

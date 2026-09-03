@@ -7,6 +7,8 @@ interface ProcessListProps {
     error: string | null
     onProcessClick: (process: Process) => void
     onStatusUpdated: (process: Process) => void
+    emptyMessage?: string
+    canManageProcesses: boolean
 }
 
 function ProcessList({
@@ -14,14 +16,25 @@ function ProcessList({
                          loading,
                          error,
                          onProcessClick,
-                         onStatusUpdated
+                         onStatusUpdated,
+                         canManageProcesses,
+                         emptyMessage = 'Lege den ersten Verwaltungsvorgang an, um die Bearbeitung zu starten.'
                      }: ProcessListProps) {
     if (loading) {
-        return <p>Prozesse werden geladen...</p>
+        return <p className="feedback-message" role="status">Prozesse werden geladen...</p>
     }
 
     if (error) {
-        return <p>{error}</p>
+        return <p className="feedback-message error-message" role="alert">{error}</p>
+    }
+
+    if (processes.length === 0) {
+        return (
+            <div className="empty-state">
+                <strong>Noch keine Vorgänge</strong>
+                <p>{emptyMessage}</p>
+            </div>
+        )
     }
 
     return (
@@ -32,6 +45,7 @@ function ProcessList({
                     process={process}
                     onClick={() => onProcessClick(process)}
                     onStatusUpdated={onStatusUpdated}
+                    canManageProcesses={canManageProcesses}
                 />
             ))}
         </div>

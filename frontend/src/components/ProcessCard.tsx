@@ -1,29 +1,38 @@
 import {useState} from 'react'
-import type {Process, ProcessStatus} from '../types/process.ts'
+import type {Process, ProcessPriority, ProcessStatus} from '../types/process.ts'
 import {updateProcessStatus} from '../services/processService.ts'
 
 interface ProcessCardProps {
     process: Process
     onClick: () => void
     onStatusUpdated: (process: Process) => void
+    canManageProcesses: boolean
 }
 
 function ProcessCard({
                          process,
                          onClick,
-                         onStatusUpdated
+                         onStatusUpdated,
+                         canManageProcesses
                      }: ProcessCardProps) {
     const [showStatusMenu, setShowStatusMenu] = useState(false)
     const [updatingStatus, setUpdatingStatus] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     const statusLabels: Record<ProcessStatus, string> = {
         OPEN: 'Offen',
         IN_PROGRESS: 'In Bearbeitung',
         COMPLETED: 'Abgeschlossen',
-        CANCELLED: 'Gelöscht'
+        CANCELLED: 'Storniert'
     }
 
-    const isCompleted = process.status === 'COMPLETED'
+    const priorityLabels: Record<ProcessPriority, string> = {
+        LOW: 'Niedrig',
+        MEDIUM: 'Mittel',
+        HIGH: 'Hoch'
+    }
+
+    const isFinal = process.status === 'COMPLETED' || process.status === 'CANCELLED'
 
     async function handleStatusChange(status: ProcessStatus) {
         if (status === process.status) {
@@ -32,6 +41,7 @@ function ProcessCard({
         }
 
         setUpdatingStatus(true)
+        setError(null)
 
         try {
             const updatedProcess = await updateProcessStatus(
@@ -39,15 +49,10 @@ function ProcessCard({
                 status
             )
 
-            console.log('Backend response:', updatedProcess)
-
             onStatusUpdated(updatedProcess)
             setShowStatusMenu(false)
-        } catch (error) {
-            console.error(
-                'Status konnte nicht aktualisiert werden.',
-                error
-            )
+        } catch {
+            setError('Status konnte nicht aktualisiert werden.')
         } finally {
             setUpdatingStatus(false)
         }
@@ -61,6 +66,9 @@ function ProcessCard({
             <div>
                 <h3>{process.title}</h3>
                 <p>{process.description}</p>
+                <span className={`priority priority-${process.priority.toLowerCase()}`}>
+                    Priorität: {priorityLabels[process.priority]}
+                </span>
             </div>
 
             <div
@@ -70,28 +78,30 @@ function ProcessCard({
                 <button
                     type="button"
                     className={`status ${process.status.toLowerCase() ?? 'unknown'} ${
-                        !isCompleted ? 'clickable' : ''
+                        !isFinal && canManageProcesses ? 'clickable' : ''
                     }`}
                     onClick={() => {
-                        if (!isCompleted && !updatingStatus) {
+                        if (!isFinal && canManageProcesses && !updatingStatus) {
                             setShowStatusMenu(current => !current)
                         }
                     }}
-                    disabled={updatingStatus || isCompleted}
+                    disabled={updatingStatus || isFinal || !canManageProcesses}
+                    aria-expanded={showStatusMenu}
+                    aria-haspopup="menu"
                 >
                     {updatingStatus
                         ? 'Wird aktualisiert...'
                         : statusLabels[process.status]}
 
-                    {!isCompleted && (
+                    {!isFinal && canManageProcesses && (
                         <span className="status-arrow">
                             ▾
                         </span>
                     )}
                 </button>
 
-                {showStatusMenu && !isCompleted && (
-                    <div className="status-menu">
+                {showStatusMenu && !isFinal && canManageProcesses && (
+                    <div className="status-menu" role="menu" aria-label="Prozessstatus ändern">
                         <button
                             type="button"
                             onClick={() => handleStatusChange('OPEN')}
@@ -112,8 +122,16 @@ function ProcessCard({
                         >
                             Abgeschlossen
                         </button>
+
+                        <button
+                            type="button"
+                            onClick={() => handleStatusChange('CANCELLED')}
+                        >
+                            Stornieren
+                        </button>
                     </div>
                 )}
+                {error && <span className="inline-error" role="alert">{error}</span>}
             </div>
         </div>
     )

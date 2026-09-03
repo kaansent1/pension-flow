@@ -1,5 +1,6 @@
-import {useState} from 'react'
-import type {Process} from '../types/process.ts'
+import {useMemo, useState} from 'react'
+import type {Process, ProcessPriority, ProcessStatus} from '../types/process.ts'
+import type {DemoUser} from '../types/auth.ts'
 import ProcessDetailsModal from '../components/ProcessDetailsModal.tsx'
 import EditProcessModal from '../components/EditProcessModal.tsx'
 import {deleteProcess} from "../services/processService.ts";
@@ -12,6 +13,9 @@ interface DashboardPageProps {
     onCreateProcess: () => void
     onProcessUpdated: (process: Process) => void
     onProcessDeleted: (id: string) => void
+    currentUser: DemoUser
+    canManageProcesses: boolean
+    canDeleteProcesses: boolean
 }
 
 function DashboardPage({
@@ -20,10 +24,18 @@ function DashboardPage({
                            error,
                            onCreateProcess,
                            onProcessUpdated,
-                           onProcessDeleted
+                           onProcessDeleted,
+                           currentUser,
+                           canManageProcesses,
+                           canDeleteProcesses
                        }: DashboardPageProps) {
     const [selectedProcess, setSelectedProcess] = useState<Process | null>(null)
     const [editingProcess, setEditingProcess] = useState<Process | null>(null)
+    const [actionError, setActionError] = useState<string | null>(null)
+    const [searchTerm, setSearchTerm] = useState('')
+    const [statusFilter, setStatusFilter] = useState<'ALL' | ProcessStatus>('ALL')
+    const [priorityFilter, setPriorityFilter] = useState<'ALL' | ProcessPriority>('ALL')
+    const [sortBy, setSortBy] = useState<'NEWEST' | 'PRIORITY'>('NEWEST')
 
 
     const openCount = processes.filter(
@@ -38,13 +50,34 @@ function DashboardPage({
         process => process.status === 'COMPLETED'
     ).length
 
+    const filteredProcesses = useMemo(() => {
+        const normalizedSearch = searchTerm.trim().toLocaleLowerCase('de-DE')
+        const priorityOrder: Record<ProcessPriority, number> = {HIGH: 3, MEDIUM: 2, LOW: 1}
+
+        return processes
+            .filter(process => {
+                const matchesSearch = !normalizedSearch
+                    || process.title.toLocaleLowerCase('de-DE').includes(normalizedSearch)
+                    || process.description.toLocaleLowerCase('de-DE').includes(normalizedSearch)
+                    || process.assignedEmployeeId?.toLocaleLowerCase('de-DE').includes(normalizedSearch)
+
+                return matchesSearch
+                    && (statusFilter === 'ALL' || process.status === statusFilter)
+                    && (priorityFilter === 'ALL' || process.priority === priorityFilter)
+            })
+            .sort((first, second) => sortBy === 'PRIORITY'
+                ? priorityOrder[second.priority] - priorityOrder[first.priority]
+                : new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime())
+    }, [processes, priorityFilter, searchTerm, sortBy, statusFilter])
+
     async function handleDeleteProcess(id: string) {
+        setActionError(null)
         try {
             await deleteProcess(id)
             onProcessDeleted(id)
             setSelectedProcess(null)
-        } catch (error) {
-            console.error('Prozess konnte nicht gelöscht werden.', error)
+        } catch {
+            setActionError('Der Prozess konnte nicht gelöscht werden. Bitte versuche es erneut.')
         }
     }
 
@@ -57,7 +90,7 @@ function DashboardPage({
                 </div>
 
                 <div className="user">
-                    KS
+                    {currentUser.initials}
                 </div>
             </header>
 
@@ -90,21 +123,68 @@ function DashboardPage({
                         <p>Die zuletzt erstellten Verwaltungsvorgänge</p>
                     </div>
 
-                    <button onClick={onCreateProcess}>
-                        Neuer Prozess
-                    </button>
+                    {canManageProcesses && <button onClick={onCreateProcess}>Neuer Prozess</button>}
                 </div>
 
-                <div className="process-list">
+                <div className="process-controls" aria-label="Vorgänge filtern und sortieren">
+                    <label className="search-field" htmlFor="process-search">
+                        <span className="sr-only">Vorgänge durchsuchen</span>
+                        <input
+                            id="process-search"
+                            type="search"
+                            value={searchTerm}
+                            onChange={event => setSearchTerm(event.target.value)}
+                            placeholder="Nach Titel, Beschreibung oder Mitarbeiter suchen"
+                        />
+                    </label>
 
-                    <ProcessList
-                        processes={processes}
-                        loading={loading}
-                        error={error}
-                        onProcessClick={process => setSelectedProcess(process)}
-                        onStatusUpdated={onProcessUpdated}
-                    />
+                    <label>
+                        <span>Status</span>
+                        <select value={statusFilter} onChange={event => setStatusFilter(event.target.value as 'ALL' | ProcessStatus)}>
+                            <option value="ALL">Alle Status</option>
+                            <option value="OPEN">Offen</option>
+                            <option value="IN_PROGRESS">In Bearbeitung</option>
+                            <option value="COMPLETED">Abgeschlossen</option>
+                            <option value="CANCELLED">Storniert</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        <span>Priorität</span>
+                        <select value={priorityFilter} onChange={event => setPriorityFilter(event.target.value as 'ALL' | ProcessPriority)}>
+                            <option value="ALL">Alle Prioritäten</option>
+                            <option value="HIGH">Hoch</option>
+                            <option value="MEDIUM">Mittel</option>
+                            <option value="LOW">Niedrig</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        <span>Sortierung</span>
+                        <select value={sortBy} onChange={event => setSortBy(event.target.value as 'NEWEST' | 'PRIORITY')}>
+                            <option value="NEWEST">Neueste zuerst</option>
+                            <option value="PRIORITY">Höchste Priorität</option>
+                        </select>
+                    </label>
                 </div>
+
+                <p className="result-summary" aria-live="polite">
+                    {filteredProcesses.length} {filteredProcesses.length === 1 ? 'Vorgang' : 'Vorgänge'} angezeigt
+                </p>
+
+                <ProcessList
+                    processes={filteredProcesses}
+                    loading={loading}
+                    error={error}
+                    onProcessClick={process => setSelectedProcess(process)}
+                    onStatusUpdated={onProcessUpdated}
+                    canManageProcesses={canManageProcesses}
+                    emptyMessage={processes.length === 0
+                        ? 'Lege den ersten Verwaltungsvorgang an, um die Bearbeitung zu starten.'
+                        : 'Für die aktuelle Suche und Filterauswahl wurden keine Vorgänge gefunden.'}
+                />
+
+                {actionError && <p className="feedback-message error-message" role="alert">{actionError}</p>}
             </section>
 
             {selectedProcess && (
@@ -126,6 +206,9 @@ function DashboardPage({
 
                         handleDeleteProcess(selectedProcess.id)
                     }}
+                    canManageProcesses={canManageProcesses}
+                    canDeleteProcesses={canDeleteProcesses}
+                    currentUser={currentUser}
                 />
             )}
 

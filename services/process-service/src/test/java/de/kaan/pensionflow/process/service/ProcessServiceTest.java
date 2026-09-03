@@ -7,7 +7,10 @@ import de.kaan.pensionflow.process.dto.UpdateProcessStatusRequest;
 import de.kaan.pensionflow.process.model.AdministrativeProcess;
 import de.kaan.pensionflow.process.model.ProcessPriority;
 import de.kaan.pensionflow.process.model.ProcessStatus;
+import de.kaan.pensionflow.process.model.ProcessAuditEvent;
+import de.kaan.pensionflow.process.model.AuditAction;
 import de.kaan.pensionflow.process.repository.ProcessRepository;
+import de.kaan.pensionflow.process.repository.ProcessAuditRepository;
 import de.kaan.pensionflow.process.service.exception.ProcessNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +31,9 @@ class ProcessServiceTest {
 
     @Mock
     private ProcessRepository processRepository;
+
+    @Mock
+    private ProcessAuditRepository processAuditRepository;
 
     @InjectMocks
     private ProcessService processService;
@@ -189,6 +195,7 @@ class ProcessServiceTest {
                 .isEqualTo("employee-123");
 
         verify(processRepository).save(process);
+
     }
 
     @Test
@@ -217,6 +224,14 @@ class ProcessServiceTest {
                 .isEqualTo(ProcessStatus.IN_PROGRESS);
 
         verify(processRepository).save(process);
+
+        ArgumentCaptor<ProcessAuditEvent> auditCaptor =
+                ArgumentCaptor.forClass(ProcessAuditEvent.class);
+        verify(processAuditRepository).save(auditCaptor.capture());
+        assertThat(auditCaptor.getValue().getAction())
+                .isEqualTo(AuditAction.STATUS_CHANGED);
+        assertThat(auditCaptor.getValue().getDetail())
+                .contains("OPEN", "IN_PROGRESS");
     }
 
     @Test

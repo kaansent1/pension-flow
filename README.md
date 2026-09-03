@@ -1,157 +1,103 @@
 # Pension Flow
 
-Full-stack application for managing administrative processes in a pension management environment.
+Eine cloud-fähige Full-Stack-Anwendung zur transparenten Steuerung von Verwaltungsvorgängen im Umfeld der betrieblichen Altersvorsorge. Pension Flow bildet den Weg eines Vorgangs von der Anlage bis zum Abschluss ab – mit klaren Verantwortlichkeiten und nachvollziehbaren Statusübergängen.
 
 🌐 **[Live Demo](https://pension-flow-theta.vercel.app)**
 
----
+## Fachliche Funktionen
 
-## About
+- Vorgänge anlegen, einsehen, bearbeiten und löschen
+- Bearbeitungsstatus und Priorität pflegen, Vorgänge bei Bedarf stornieren
+- Vorgänge Mitarbeitenden zuordnen
+- Vorgänge nach Text, Status und Priorität filtern sowie sortieren
+- Aktivitätsverlauf mit Akteur, Zeitstempel und Art der Änderung einsehen
+- Demo-Rollen für Administration (inkl. Löschen), Sachbearbeitung und lesenden Zugriff testen
+- Unzulässige Statuswechsel im Backend verhindern
+- Responsive Oberfläche mit Lade-, Fehler- und Leerzuständen
 
-Pension Flow is a full-stack web application designed to manage administrative processes from creation to completion.
+## Technologie & Qualität
 
-The project was built to demonstrate the development of a complete application — from the React frontend and REST API to persistent MongoDB storage and cloud deployment.
+| Bereich | Technologien |
+| --- | --- |
+| Frontend | React, TypeScript, Vite, CSS |
+| Backend | Java 21, Spring Boot, Spring Data MongoDB, REST, Gradle |
+| Betrieb | Docker Compose, MongoDB, Spring Boot Actuator |
+| Qualität | JUnit, Mockito, Testcontainers, GitHub Actions |
+| Deployment | Vercel, Render, MongoDB Atlas |
 
-The application is fully deployed and can be tested directly through the live demo.
-
----
-
-## Features
-
-- Create, view, edit and delete processes
-- Manage process status and priority
-- Assign processes to employees
-- Persistent data storage
-- RESTful API
-- Responsive web interface
-- Production deployment
-
----
-
-## Tech Stack
-
-### Frontend
-
-- React
-- TypeScript
-- Vite
-- CSS
-
-### Backend
-
-- Java
-- Spring Boot
-- Spring Data MongoDB
-- REST API
-- Gradle
-
-### Database & Infrastructure
-
-- MongoDB Atlas
-- Docker
-- Git / GitHub
-
-### Deployment
-
-- Vercel — Frontend
-- Render — Backend
-- MongoDB Atlas — Database
-
----
-
-## Architecture
+## Architektur
 
 ```text
-                 ┌────────────────────┐
-                 │       Vercel       │
-                 │  React + TypeScript│
-                 └─────────┬──────────┘
-                           │
-                         REST
-                           │
-                           ▼
-                 ┌────────────────────┐
-                 │       Render       │
-                 │    Spring Boot     │
-                 └─────────┬──────────┘
-                           │
-                           ▼
-                 ┌────────────────────┐
-                 │    MongoDB Atlas   │
-                 └────────────────────┘
-````
-
-The backend follows a simple layered architecture:
-
-```text
-Controller
-    ↓
-Service
-    ↓
-Repository
-    ↓
-MongoDB
-```
-
-This keeps API handling, business logic and data access separated.
-
----
-
-## REST API
-
-| Method | Endpoint                     | Description           |
-| ------ | ---------------------------- | --------------------- |
-| GET    | `/api/processes`             | Get all processes     |
-| GET    | `/api/processes/{id}`        | Get a process         |
-| POST   | `/api/processes`             | Create a process      |
-| PUT    | `/api/processes/{id}`        | Update a process      |
-| PATCH  | `/api/processes/{id}/status` | Update process status |
-| DELETE | `/api/processes/{id}`        | Delete a process      |
-
----
-
-## Testing
-
-The backend includes automated tests and the REST API was tested using IntelliJ IDEA's HTTP Client.
-
-The complete CRUD workflow was tested against the deployed backend.
-
----
-
-## Deployment
-
-The application is deployed as three separate components:
-
-**Frontend**
-Vercel
-
-**Backend**
-Render
-
-**Database**
+React + TypeScript (Vercel)
+            │ REST/HTTPS
+            ▼
+Spring Boot Process Service (Render)
+            │
+            ▼
 MongoDB Atlas
-
-The production frontend communicates with the deployed Spring Boot REST API over HTTPS.
-
----
-
-## Local Development
-
-### Backend
-
-```bash
-./gradlew bootRun
 ```
 
-### Frontend
+Im Service trennt eine klassische Schichtenarchitektur die Verantwortlichkeiten:
+
+```text
+Controller → Service → Repository → MongoDB
+```
+
+Der Service kapselt die Fachregeln, etwa für erlaubte Statusübergänge. Damit bleibt die API auch dann konsistent, wenn später weitere Clients hinzukommen.
+
+## REST-API
+
+| Methode | Endpoint | Beschreibung |
+| --- | --- | --- |
+| GET | `/api/processes` | Alle Vorgänge laden |
+| GET | `/api/processes/{id}` | Einzelnen Vorgang laden |
+| POST | `/api/processes` | Vorgang anlegen |
+| PUT | `/api/processes/{id}` | Vorgang bearbeiten |
+| PATCH | `/api/processes/{id}/status` | Status ändern |
+| DELETE | `/api/processes/{id}` | Vorgang löschen |
+
+## Tests & Betriebsreife
+
+Die Business-Logik ist mit Unit-Tests abgedeckt. Integrations-Tests starten MongoDB über Testcontainers und prüfen den CRUD-Workflow gegen eine echte HTTP-Schnittstelle. GitHub Actions führt Build- und Lint-Prüfungen für Frontend und Backend aus.
+
+Der Service stellt Health-Endpunkte bereit:
+
+```text
+/actuator/health
+/actuator/health/liveness
+/actuator/health/readiness
+```
+
+## Lokal starten
+
+Voraussetzungen: Java 21, Node.js 22+ und Docker.
+
+1. Beispielkonfiguration kopieren:
 
 ```bash
+cp frontend/.env.example frontend/.env
+```
+
+2. Datenbank und Backend starten:
+
+```bash
+docker compose up --build
+```
+
+3. In einem zweiten Terminal das Frontend starten:
+
+```bash
+cd frontend
 npm install
 npm run dev
 ```
 
-The frontend is then available at:
+Danach ist die Anwendung unter `http://localhost:5173` verfügbar.
 
-```text
-http://localhost:5173
-```
+## Gesprächsnotizen
+
+- **Fachlichkeit:** Status, Priorität, Bearbeitung und Zeitstempel machen einen Vorgang nachvollziehbar.
+- **Clean Code:** Controller, Service und Repository trennen HTTP, Fachlogik und Datenzugriff. Ungültige Zustandswechsel werden nicht nur im UI, sondern verbindlich im Service verhindert.
+- **DevOps:** Container, Health-Probes, konfigurierbare Umgebungsvariablen und CI bilden die Grundlage für einen zuverlässigen Betrieb.
+- **Sicherheit:** Die Demo-Rollen zeigen die Berechtigungserfahrung im Frontend. Für Produktion würde die Rollenprüfung über einen Identity Provider (OIDC/SSO) und serverseitige Autorisierung erfolgen.
+- **Nächste Ausbaustufe:** Authentifizierung/Rollen, Audit-Log, asynchrone Benachrichtigungen sowie Metriken und Dashboards wären sinnvolle nächste Schritte für einen produktiven Einsatz.

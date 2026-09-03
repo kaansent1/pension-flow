@@ -62,6 +62,7 @@ function EditProcessModal({
                         className="modal-close"
                         type="button"
                         onClick={onClose}
+                        aria-label="Dialog schließen"
                     >
                         ×
                     </button>

@@ -123,7 +123,7 @@ The complete CRUD workflow was tested against the deployed backend.
 The application is deployed as three separate components:
 
 **Frontend**
-[Vercel](https://pension-flow-theta.vercel.app)
+Vercel
 
 **Backend**
 Render

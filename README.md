@@ -1,7 +1,5 @@
 # Pension Flow
 
-Eine cloud-fähige Full-Stack-Anwendung zur transparenten Steuerung von Verwaltungsvorgängen im Umfeld der betrieblichen Altersvorsorge. Pension Flow bildet den Weg eines Vorgangs von der Anlage bis zum Abschluss ab – mit klaren Verantwortlichkeiten und nachvollziehbaren Statusübergängen.
-
 🌐 **[Live Demo](https://pension-flow-theta.vercel.app)**
 
 ## Fachliche Funktionen

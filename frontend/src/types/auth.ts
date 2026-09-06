@@ -7,9 +7,9 @@ export interface DemoUser {
 }
 
 export const demoUsers: DemoUser[] = [
-    {name: 'Kaan Sentürk', initials: 'KS', role: 'ADMIN'},
-    {name: 'Max Mustermann', initials: 'MM', role: 'CLERK'},
-    {name: 'Rudi Assauer', initials: 'RA', role: 'VIEWER'}
+    {name: 'Rudi Assauer', initials: 'RA', role: 'ADMIN'},
+    {name: 'Kaan Sentürk', initials: 'KS', role: 'CLERK'},
+    {name: 'Max Mustermann', initials: 'MM', role: 'VIEWER'}
 ]
 
 export const roleLabels: Record<UserRole, string> = {

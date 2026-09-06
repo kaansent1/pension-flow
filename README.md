@@ -43,8 +43,6 @@ Im Service trennt eine klassische Schichtenarchitektur die Verantwortlichkeiten:
 Controller → Service → Repository → MongoDB
 ```
 
-Der Service kapselt die Fachregeln, etwa für erlaubte Statusübergänge. Damit bleibt die API auch dann konsistent, wenn später weitere Clients hinzukommen.
-
 ## REST-API
 
 | Methode | Endpoint | Beschreibung |
@@ -56,16 +54,6 @@ Der Service kapselt die Fachregeln, etwa für erlaubte Statusübergänge. Damit 
 | PATCH | `/api/processes/{id}/status` | Status ändern |
 | DELETE | `/api/processes/{id}` | Vorgang löschen |
 
-## Tests & Betriebsreife
-
-Die Business-Logik ist mit Unit-Tests abgedeckt. Integrations-Tests starten MongoDB über Testcontainers und prüfen den CRUD-Workflow gegen eine echte HTTP-Schnittstelle. GitHub Actions führt Build- und Lint-Prüfungen für Frontend und Backend aus.
-
-Der Service stellt Health-Endpunkte bereit:
-
-```text
-/actuator/health
-/actuator/health/liveness
-/actuator/health/readiness
 ```
 
 ## Lokal starten
@@ -93,11 +81,3 @@ npm run dev
 ```
 
 Danach ist die Anwendung unter `http://localhost:5173` verfügbar.
-
-## Gesprächsnotizen
-
-- **Fachlichkeit:** Status, Priorität, Bearbeitung und Zeitstempel machen einen Vorgang nachvollziehbar.
-- **Clean Code:** Controller, Service und Repository trennen HTTP, Fachlogik und Datenzugriff. Ungültige Zustandswechsel werden nicht nur im UI, sondern verbindlich im Service verhindert.
-- **DevOps:** Container, Health-Probes, konfigurierbare Umgebungsvariablen und CI bilden die Grundlage für einen zuverlässigen Betrieb.
-- **Sicherheit:** Die Demo-Rollen zeigen die Berechtigungserfahrung im Frontend. Für Produktion würde die Rollenprüfung über einen Identity Provider (OIDC/SSO) und serverseitige Autorisierung erfolgen.
-- **Nächste Ausbaustufe:** Authentifizierung/Rollen, Audit-Log, asynchrone Benachrichtigungen sowie Metriken und Dashboards wären sinnvolle nächste Schritte für einen produktiven Einsatz.

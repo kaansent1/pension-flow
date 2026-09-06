@@ -52,7 +52,7 @@ Controller → Service → Repository → MongoDB
 | PATCH | `/api/processes/{id}/status` | Status ändern |
 | DELETE | `/api/processes/{id}` | Vorgang löschen |
 
-```
+
 
 ## Lokal starten
 
